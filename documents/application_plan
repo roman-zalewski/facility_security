@@ -1,0 +1,12 @@
+1. Who uses your application and what it is for (1 or 2 sentences).
+#TODO: Collin
+2. Your seven features, one sentence each, with the requirement each one covers: Search, Combine tables, Summary, Subquery, Add, Change, and Transaction.
+#TODO: Jon
+3. Your transaction-> which changes happen together, and how you will show a failure in the demo.
+#TODO: Jon
+4. Your GRANT list_> which permissions on which tables, and why.
+#TODO: Roman
+5. The constraint you will show and the operation that MySQL will refuse.
+#TODO: Collin
+6. Your language and interface, and who on the team will do which part.
+#TODO: Roman
