@@ -1,5 +1,5 @@
 1. Who uses your application and what it is for (1 or 2 sentences).
-#TODO: Collin
+	Our application is a secure access system for businesses that need to restrict access to their facilities, and their employees that need access.
 2. Your seven features, one sentence each, with the requirement each one covers: Search, Combine tables, Summary, Subquery, Add, Change, and Transaction.
 #TODO: Jon
 3. Your transaction-> which changes happen together, and how you will show a failure in the demo.
@@ -7,6 +7,6 @@
 4. Your GRANT list_> which permissions on which tables, and why.
 #TODO: Roman
 5. The constraint you will show and the operation that MySQL will refuse.
-#TODO: Collin
+	facility managers will be able to access who is present in each building, access records, access permissions etc. They will also be able to modify who has access to what. Employees will be able to present their ID and be informed if they have access or not. They will also be able to see facility inventory and product details.
 6. Your language and interface, and who on the team will do which part.
 #TODO: Roman
