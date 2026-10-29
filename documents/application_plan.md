@@ -1,0 +1,17 @@
+### 1. Who uses your application and what it is for (1 or 2 sentences).
+Our application is a secure access system for businesses that need to restrict access to their facilities, and their employees that need access.
+
+### 2. Your seven features, one sentence each, with the requirement each one covers: Search, Combine tables, Summary, Subquery, Add, Change, and Transaction.
+#TODO: Jon
+
+### 3. Your transaction-> which changes happen together, and how you will show a failure in the demo.
+#TODO: Jon
+
+### 4.  Your GRANT list-> which permissions on which tables, and why.
+Our program will have 4 acounts. The first account will be for the any administrators. This account will have full access on every table, since the goal is that any person who has access to this account will be administering the server. In an ideal world, they would access this account on an application where they have individual logging, so that tracing a change back to a specific employee is possible. The second account would be for analysts, who will have read permissions on all tables. The 3rd account will be for backend services in any applications. This account will have full access to all tables. The actual permissions for this will be checked by a script that ingests service information. The purpose behind avoiding SQL in this case is each employee role will likely have different permissions, but will execute from the same backend application. In order to keep the SQL side of things simple, a script will check the role of the user within the application, and only send the command to the SQL server if they have the required permissions to do so. Finally, the 4th account will be used for various keycard readers, and they will only have write access on the access_log table. They will only be logging access, so they need no other permission other than to write. 
+
+### 5. The constraint you will show and the operation that MySQL will refuse.
+facility managers will be able to access who is present in each building, access records, access permissions etc. They will also be able to modify who has access to what. Employees will be able to present their ID and be informed if they have access or not. They will also be able to see facility inventory and product details.
+
+### 6.  Your language and interface, and who on the team will do which part.
+We will be using Python 
