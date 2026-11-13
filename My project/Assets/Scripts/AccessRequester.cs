@@ -11,8 +11,8 @@ public class AccessRequester : MonoBehaviour
     {
         dbConn.Server = "zalwe.ski:22";
         dbConn.DatabaseName = "super_secret_labs";
-        dbConn.UserName = "[FILL LATER]";
-        dbConn.Password = "[FILL LATER]";
+        dbConn.UserName = "GUI_interface";
+        dbConn.Password = "password";
 
         //some code to fetch the facilities in the database
     }
