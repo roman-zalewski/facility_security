@@ -1,4 +1,14 @@
 -- sample data with some nulls thrown in for error checking
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE employee;
+TRUNCATE facilities;
+TRUNCATE supplier;
+TRUNCATE products; -- Clear data to test inserts
+TRUNCATE access;
+TRUNCATE facility_inventory;
+TRUNCATE access_log;
+SET FOREIGN_KEY_CHECKS = 1;
+
 INSERT INTO employee VALUES
 (1, 'John', 'Smith', '2018-03-14 08:00:00', 'Active', 5551234567,
 'jsmith@company.com', 'john.smith@gmail.com', 'Facility Manager', NULL),
