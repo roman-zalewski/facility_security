@@ -16,7 +16,6 @@ public class AccessRequester : MonoBehaviour
         dbConn.DatabaseName = "super_secret_labs";
         dbConn.UserName = "manager";
         dbConn.Password = "P@ssword";
-
         //some code to fetch the facilities in the database
         if (dbConn.IsConnect())
         {
