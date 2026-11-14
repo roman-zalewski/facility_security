@@ -10,7 +10,7 @@ public class AccessRequester : MonoBehaviour
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private TMP_Dropdown facilityDropdown;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Update()
+    void Start()
     {
         dbConn.Server = "127.0.0.1";
         dbConn.DatabaseName = "super_secret_labs";
