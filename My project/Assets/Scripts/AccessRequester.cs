@@ -39,6 +39,10 @@ public class AccessRequester : MonoBehaviour
 
             dbConn.Close();
         }
+        else
+        {
+            Debug.LogError("NO CONNECTION!");
+        }
     }
 
     public void OnAccess()
