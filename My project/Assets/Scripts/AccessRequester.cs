@@ -20,11 +20,13 @@ public class AccessRequester : MonoBehaviour
         //some code to fetch the facilities in the database
         if (dbConn.IsConnect())
         {
+            Debug.Log("Connected Successfully");
             string query = "SELECT facility_name FROM facilities";
             MySqlCommand myCommand = new MySqlCommand(query, dbConn.Connection);
+            Debug.Log("Send Command");
 
             List<string> facilityNames = new List<string>();
-
+            Debug.Log(2.5f);
             using var myReader = myCommand.ExecuteReader();
             {
                 while (myReader.Read())
@@ -32,10 +34,12 @@ public class AccessRequester : MonoBehaviour
                     facilityNames.Add(myReader.GetString("facility_name"));
                 }
             }
+            Debug.Log(3);
+            dbConn.Close();
+            Debug.Log(4);
+
             facilityDropdown.ClearOptions();
             facilityDropdown.AddOptions(facilityNames);
-
-            dbConn.Close();
         }
         else
         {
@@ -91,11 +95,14 @@ public class AccessRequester : MonoBehaviour
             myCommand.Parameters.AddWithValue("@employeeName", nameInput.text);
 
             Debug.Log(myCommand.ExecuteNonQuery());
+
+            dbConn.Close();
         
             }
             catch (MySql.Data.MySqlClient.MySqlException ex)
             {
                 Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
+                dbConn.Close();
             }
         }
     }

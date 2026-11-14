@@ -2,6 +2,7 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System;
+using UnityEngine;
 
 public class DBConnection
 {
@@ -29,6 +30,7 @@ public class DBConnection
             string connstring = string.Format("Server={0};port=3307;database={1};username={2};password={3}", Server, DatabaseName, UserName, Password);
             Connection = new MySqlConnection(connstring);
             Connection.Open();
+            Debug.Log("Connection Open");
         }
 
         return true;
@@ -36,6 +38,7 @@ public class DBConnection
 
     public void Close()
     {
+        Debug.Log("Connection Closing");
         Connection.Close();
     }
 }
