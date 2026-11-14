@@ -12,7 +12,7 @@ public class AccessRequester : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        dbConn.Server = "zalwe.ski:22";
+        dbConn.Server = "127.0.0.1:3306";
         dbConn.DatabaseName = "super_secret_labs";
         dbConn.UserName = "GUI_interface";
         dbConn.Password = "password";
