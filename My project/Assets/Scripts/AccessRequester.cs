@@ -12,7 +12,7 @@ public class AccessRequester : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        dbConn.Server = "127.0.0.1:3306";
+        dbConn.Server = "127.0.0.1";
         dbConn.DatabaseName = "super_secret_labs";
         dbConn.UserName = "GUI_interface";
         dbConn.Password = "password";
@@ -21,19 +21,15 @@ public class AccessRequester : MonoBehaviour
         if (dbConn.IsConnect())
         {
             string query = "SELECT facility_name FROM facilities";
-            MySqlCommand myCommand = new MySqlCommand();
-            myCommand.Connection = dbConn.Connection;
-            myCommand.CommandText = query;
+            MySqlCommand myCommand = new MySqlCommand(query, dbConn.Connection);
 
             List<string> facilityNames = new List<string>();
 
-            using var myReader = myCommand.ExecuteReader();
-            {
+            var myReader = myCommand.ExecuteReader();
                 while (myReader.Read())
                 {
                     facilityNames.Add(myReader.GetString("facility_name"));
                 }
-            }
             facilityDropdown.ClearOptions();
             facilityDropdown.AddOptions(facilityNames);
 
