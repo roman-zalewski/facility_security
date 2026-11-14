@@ -4,7 +4,7 @@ using MySql.Data.MySqlClient;
 
 public class ChangeNamePrefab : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI empText;
+    public TextMeshProUGUI empName;
     
     public void OnChageName()
     {
@@ -15,7 +15,7 @@ public class ChangeNamePrefab : MonoBehaviour
         {
             string query = "SELECT employee_id FROM employee WHERE first_name = @firstName";
             MySqlCommand myCommand = new MySqlCommand(query, dbConn.Connection);
-            myCommand.Parameters.AddWithValue("@firstName", empText.text.Split(" ")[0]);
+            myCommand.Parameters.AddWithValue("@firstName", empName.text.Split(" ")[0]);
 
 
             using var myReader = myCommand.ExecuteReader();

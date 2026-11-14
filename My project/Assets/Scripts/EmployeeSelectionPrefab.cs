@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
-public class EmployeeSelecition : MonoBehaviour
+public class EmployeeSelectionPrefab : MonoBehaviour
 {
     public int employeeId;
     public TextMeshProUGUI nameText;
