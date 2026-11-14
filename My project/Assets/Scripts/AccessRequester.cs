@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-using System;
+using TMPro;
 
 public class AccessRequester : MonoBehaviour
 {
     DBConnection dbConn = DBConnection.Instance();
-    [SerializeField] private InputField nameInput;
-    [SerializeField] private Dropdown facilityDropdown;
+    [SerializeField] private TMP_InputField nameInput;
+    [SerializeField] private TMP_Dropdown facilityDropdown;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
