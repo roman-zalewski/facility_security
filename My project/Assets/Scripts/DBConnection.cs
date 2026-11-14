@@ -26,7 +26,7 @@ public class DBConnection
         {
             if (String.IsNullOrEmpty(DatabaseName))
                 return false;
-            string connstring = string.Format("Server={0}; database={1}; UID={2}; password={3}", Server, DatabaseName, UserName, Password);
+            string connstring = string.Format("Server={0};port=3307;database={1};username={2};password={3}", Server, DatabaseName, UserName, Password);
             Connection = new MySqlConnection(connstring);
             Connection.Open();
         }

@@ -10,12 +10,12 @@ public class AccessRequester : MonoBehaviour
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private TMP_Dropdown facilityDropdown;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Update()
     {
         dbConn.Server = "127.0.0.1";
         dbConn.DatabaseName = "super_secret_labs";
-        dbConn.UserName = "GUI_interface";
-        dbConn.Password = "password";
+        dbConn.UserName = "manager";
+        dbConn.Password = "P@ssword";
 
         //some code to fetch the facilities in the database
         if (dbConn.IsConnect())
@@ -25,11 +25,13 @@ public class AccessRequester : MonoBehaviour
 
             List<string> facilityNames = new List<string>();
 
-            var myReader = myCommand.ExecuteReader();
+            using var myReader = myCommand.ExecuteReader();
+            {
                 while (myReader.Read())
                 {
                     facilityNames.Add(myReader.GetString("facility_name"));
                 }
+            }
             facilityDropdown.ClearOptions();
             facilityDropdown.AddOptions(facilityNames);
 
