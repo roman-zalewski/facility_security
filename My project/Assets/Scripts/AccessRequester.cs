@@ -6,24 +6,21 @@ using TMPro;
 
 public class AccessRequester : MonoBehaviour
 {
-    DBConnection dbConn = DBConnection.Instance();
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private TMP_Dropdown facilityDropdown;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        dbConn.Server = "127.0.0.1";
-        dbConn.DatabaseName = "super_secret_labs";
-        dbConn.UserName = "manager";
-        dbConn.Password = "P@ssword";
         //some code to fetch the facilities in the database
-        if (dbConn.IsConnect())
-        {
-            Debug.Log("Connected Successfully");
+        try{
+            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
+            "port = 3307; " +
+            "username = manager; " +
+            "password = P@ssword" +
+            "database =super_secret_labs; ");
             string query = "SELECT facility_name FROM facilities";
-            MySqlCommand myCommand = new MySqlCommand(query, dbConn.Connection);
+            MySqlCommand myCommand = new MySqlCommand(query, conn);
             Debug.Log("Send Command");
-
             List<string> facilityNames = new List<string>();
             Debug.Log(2.5f);
             using var myReader = myCommand.ExecuteReader();
@@ -34,23 +31,26 @@ public class AccessRequester : MonoBehaviour
                 }
             }
             Debug.Log(3);
-            dbConn.Close();
+            conn.Close();
             Debug.Log(4);
 
             facilityDropdown.ClearOptions();
             facilityDropdown.AddOptions(facilityNames);
         }
-        else
+        catch (MySqlException ex)
         {
-            Debug.LogError("NO CONNECTION!");
+            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
         }
     }
 
     public void OnAccess()
     {
-        if (dbConn.IsConnect())
-        {
-            try {
+        MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
+        "port = 3307; " +
+        "username = GUI_user; " +
+        "password = password" +
+        "database =super_secret_labs; ");
+        try {
             //I actuall have no clue how this is supposed to work
             string query = "INSERT INTO access_log" +
     "(employee_id, facility_id, access_status, access_time, access_date, in_or_out)" +
@@ -87,22 +87,18 @@ public class AccessRequester : MonoBehaviour
 "SET @facilityId = SELECT facilityId FROM facilities WHERE facility_name = @facilityName" +
 "SET @empoyeeId = SELECT emploayeeId FROM employee WHERE first_name = @employeeName";
 
-            MySqlCommand myCommand = new MySqlCommand();
-            myCommand.Connection = dbConn.Connection;
-            myCommand.CommandText = query;
+            MySqlCommand myCommand = new MySqlCommand(query, conn);
             myCommand.Parameters.AddWithValue("@facilityName", facilityDropdown.options[facilityDropdown.value].text);
             myCommand.Parameters.AddWithValue("@employeeName", nameInput.text);
 
             Debug.Log(myCommand.ExecuteNonQuery());
 
-            dbConn.Close();
+            conn.Close();
         
             }
             catch (MySql.Data.MySqlClient.MySqlException ex)
             {
                 Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-                dbConn.Close();
             }
-        }
     }
 }

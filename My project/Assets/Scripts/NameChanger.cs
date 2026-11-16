@@ -33,7 +33,7 @@ public class NameChanger : MonoBehaviour
                 Debug.Log(myCommand.ExecuteNonQuery());
 
             }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
+            catch (MySqlException ex)
             {
                 Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
             }

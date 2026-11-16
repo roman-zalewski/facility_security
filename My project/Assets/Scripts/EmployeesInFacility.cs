@@ -1,13 +1,14 @@
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 
 public class EmployeesInFacility : MonoBehaviour
 {
     [SerializeField] private GameObject tmproPrefab;
     [SerializeField] private Transform textParent;
     private Stack<GameObject> names;
-    private string facilityName;
+    private int facilityId;
 
     private void Start()
     {
@@ -15,9 +16,9 @@ public class EmployeesInFacility : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void OnOpen(string facility)
+    public void OnOpen(int facilityId)
     {
-        facilityName = facility;
+        this.facilityId = facilityId;
         OnRefresh();
     }
     
@@ -31,13 +32,40 @@ public class EmployeesInFacility : MonoBehaviour
             }
         }
         //insert sql Query
-        string[] newNames = { "John Doe", "Mary Vasques" };
+        Stack<string> newNames = new Stack<string>();
+
+        try
+        {
+            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
+                "port = 3307; " +
+                "username = manager; " +
+                "password = P@ssword" +
+                "database =super_secret_labs; ");
+            string query = "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employee";
+            MySqlCommand myCommand = new MySqlCommand(query, conn);
+
+
+            using var myReader = myCommand.ExecuteReader();
+            {
+                while (myReader.Read())
+                {
+                    newNames.Push(myReader.GetString("full_name"));
+                }
+            }
+            conn.Close();
+
+        }
+        catch (MySqlException ex)
+        {
+            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
+        }
+
         GameObject temp;
-        foreach( string name in newNames)
+        while(newNames.Count > 0)
         {
             temp = Instantiate(tmproPrefab, textParent);
             names.Push(temp);
-            temp.GetComponent<TextMeshProUGUI>().text = name;
+            temp.GetComponent<TextMeshProUGUI>().text = newNames.Pop();
         }
     }
     
@@ -46,8 +74,14 @@ public class EmployeesInFacility : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void OnUpdateAccess()
+    public void OnAddAccess()
     {
-
+        FindAnyObjectByType<EmployeeSelection>(FindObjectsInactive.Include).gameObject.SetActive(true);
+        FindAnyObjectByType<EmployeeSelection>().OnStartAdd(facilityId);
+    }
+    public void OnRemoveAccess()
+    {
+        FindAnyObjectByType<EmployeeSelection>(FindObjectsInactive.Include).gameObject.SetActive(true);
+        FindAnyObjectByType<EmployeeSelection>().OnStartRemove(facilityId);
     }
 }
