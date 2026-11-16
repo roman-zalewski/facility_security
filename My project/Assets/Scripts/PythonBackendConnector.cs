@@ -11,13 +11,15 @@ public class PythonBackendConnector
     public static async Task<string> BackendRequest(string requestSql)
     {
         using HttpClient client = new HttpClient();
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "romansServerName");
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "localhost:49170/data/manager"); //not privaliged is scanner
         request.Headers.TryAddWithoutValidation("application/json", requestSql);
 
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
         if (response.IsSuccessStatusCode)
         {
+            string temp =
+
             return await response.Content.ReadAsStringAsync();
         }
         return null;
