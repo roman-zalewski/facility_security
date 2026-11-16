@@ -23,8 +23,8 @@ public class FacilitySelector : MonoBehaviour
 
         //insert facility get query here
         Stack<string> facilityNames = new Stack<string>();
+        Stack<int> facilityIDs = new Stack<int>();
         Stack<int> facilityCount = new Stack<int>();
-
         try
         {
             MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
@@ -32,8 +32,22 @@ public class FacilitySelector : MonoBehaviour
                 "username = manager; " +
                 "password = P@ssword" +
                 "database =super_secret_labs; ");
+            //get facility name and facility ID
+            string query = "SELECT facility_name, facility_id FROM facilities";
+            MySqlCommand myCommand = new MySqlCommand(query, conn);
+
+
+            using var myReader = myCommand.ExecuteReader();
+            {
+                while (myReader.Read())
+                {
+                    facilityNames.Push(myReader.GetString("facility_name"));
+                    facilityIDs.Push(myReader.GetInt32("facility_id"));
+                }
+            }
+            Stack<int> facilityIdsForQueries = facilityIDs;
             //this only does specific facilities, it needs to be all facilities
-            string query = "SELECT COUNT(*) AS people_inside" +
+            query = "SELECT COUNT(*) AS people_inside" +
 "FROM(" +
     "SELECT l.employee_id, l.in_or_out, " +
            "ROW_NUMBER() OVER(PARTITION BY l.employee_id" +
@@ -44,14 +58,18 @@ public class FacilitySelector : MonoBehaviour
       "AND l.in_or_out IS NOT NULL" +
 ") latest" +
 "WHERE rn = 1 AND in_or_out = 'In'; ";
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
+            myCommand = new MySqlCommand(query, conn);
 
-
-            using var myReader = myCommand.ExecuteReader();
+            while (facilityIdsForQueries.Count > 0)
             {
-                while (myReader.Read())
+                myCommand.Parameters.AddWithValue("@facility_id", facilityIdsForQueries.Pop());
+
+                using var myReader2 = myCommand.ExecuteReader();
                 {
-                    facilityCount.Push(myReader.GetInt32("people_inside"));
+                    while (myReader2.Read())
+                    {
+                        facilityCount.Push(myReader2.GetInt32("people_inside"));
+                    }
                 }
             }
             conn.Close();
@@ -70,6 +88,7 @@ public class FacilitySelector : MonoBehaviour
             temp = Instantiate(FacilityPrefab, FacilityVLG);
             facilityObjects.Push(temp);
             temp.GetComponentInChildren<FacilityGameobjects>().FacilityText.text = facilityNames.Pop();
+            temp.GetComponentInChildren<FacilityGameobjects>().facilityID = facilityIDs.Pop();
             temp.GetComponentInChildren<FacilityGameobjects>().UserCountText.text = facilityCount.Pop().ToString();
         }
     }

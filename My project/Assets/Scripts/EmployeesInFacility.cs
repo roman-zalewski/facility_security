@@ -8,7 +8,7 @@ public class EmployeesInFacility : MonoBehaviour
     [SerializeField] private GameObject tmproPrefab;
     [SerializeField] private Transform textParent;
     private Stack<GameObject> names;
-    private string facilityName;
+    private int facilityId;
 
     private void Start()
     {
@@ -16,9 +16,9 @@ public class EmployeesInFacility : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void OnOpen(string facility)
+    public void OnOpen(int facilityId)
     {
-        facilityName = facility;
+        this.facilityId = facilityId;
         OnRefresh();
     }
     
@@ -77,11 +77,11 @@ public class EmployeesInFacility : MonoBehaviour
     public void OnAddAccess()
     {
         FindAnyObjectByType<EmployeeSelection>(FindObjectsInactive.Include).gameObject.SetActive(true);
-        FindAnyObjectByType<EmployeeSelection>().OnStartAdd(facilityName);
+        FindAnyObjectByType<EmployeeSelection>().OnStartAdd(facilityId);
     }
     public void OnRemoveAccess()
     {
         FindAnyObjectByType<EmployeeSelection>(FindObjectsInactive.Include).gameObject.SetActive(true);
-        FindAnyObjectByType<EmployeeSelection>().OnStartRemove(facilityName);
+        FindAnyObjectByType<EmployeeSelection>().OnStartRemove(facilityId);
     }
 }

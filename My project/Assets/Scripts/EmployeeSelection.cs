@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 
 //adding and deleting employees should look through every toggle to see if it enabled or not, and handle accordingly
@@ -7,16 +8,19 @@ public class EmployeeSelection : MonoBehaviour
     [SerializeField] GameObject employeeSelectionPrefab;
     [SerializeField] Transform VLG;
 
-    string facilityName;
+    private Stack<EmployeeSelectionPrefab> employees;
+
+    int facilityId;
     bool add;
 
-    public void OnStartAdd(string facility)
+    public void OnStartAdd(int facility)
     {
         add = true;
-        facilityName = facility;
+        facilityId = facility;
         //a SQL query that gets every employee that does not have access to that facility
         try
         {
+            employees = new Stack<EmployeeSelectionPrefab>();
             MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
                 "port = 3307; " +
                 "username = manager; " +
@@ -37,6 +41,7 @@ public class EmployeeSelection : MonoBehaviour
                     nameTemp.nameText.text = myReader.GetString("full_name");
                     nameTemp.employeeId = myReader.GetInt32("employee_id");
                     nameTemp.toggle.isOn = false;
+                    employees.Push(nameTemp);
                 }
             }
             conn.Close();
@@ -48,13 +53,14 @@ public class EmployeeSelection : MonoBehaviour
         }
     }
 
-    public void OnStartRemove(string facility)
+    public void OnStartRemove(int facility)
     {
         add = false;
-        facilityName = facility;
+        facilityId = facility;
         //a SQL query that gets every employee that has access to that facility
         try
         {
+            employees = new Stack<EmployeeSelectionPrefab>();
             MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
                 "port = 3307; " +
                 "username = manager; " +
@@ -75,6 +81,7 @@ public class EmployeeSelection : MonoBehaviour
                     nameTemp.nameText.text = myReader.GetString("full_name");
                     nameTemp.employeeId = myReader.GetInt32("employee_id");
                     nameTemp.toggle.isOn = true;
+                    employees.Push(nameTemp);
                 }
             }
             conn.Close();
@@ -104,11 +111,23 @@ public class EmployeeSelection : MonoBehaviour
             }
             MySqlCommand myCommand = new MySqlCommand(query, conn);
             MySqlTransaction tr = myCommand.Transaction;
+            EmployeeSelectionPrefab temp;
 
             try 
             {
-                //loop through commands
-                myCommand.ExecuteNonQuery();
+                while (employees.Count > 0)
+                {
+                    temp = employees.Pop(); 
+                    if ((temp.toggle.isOn && !add) || (!temp.toggle.isOn && add))
+                    {
+                        continue;
+                    }
+                    myCommand.Parameters.Clear();
+                    myCommand.Parameters.AddWithValue("@facilityID", facilityId);
+                    myCommand.Parameters.AddWithValue("@employeeId", temp.employeeId);
+                    //loop through command
+                    myCommand.ExecuteNonQuery();
+                }
             }
             catch(MySqlException ex)
             {
