@@ -8,9 +8,11 @@ public class EmployeeSelection : MonoBehaviour
     [SerializeField] Transform VLG;
 
     string facilityName;
+    bool add;
 
     public void OnStartAdd(string facility)
     {
+        add = true;
         facilityName = facility;
         //a SQL query that gets every employee that does not have access to that facility
         try
@@ -48,6 +50,7 @@ public class EmployeeSelection : MonoBehaviour
 
     public void OnStartRemove(string facility)
     {
+        add = false;
         facilityName = facility;
         //a SQL query that gets every employee that has access to that facility
         try
@@ -93,7 +96,12 @@ public class EmployeeSelection : MonoBehaviour
                 "username = manager; " +
                 "password = P@ssword" +
                 "database =super_secret_labs; ");
-            string query = "[[[INSERT QUEREY HERE]]]";
+            string query = "DELETE FROM access" +
+            "WHERE facility_id = @facilityId AND employee_id = @employeeId;";
+            if(add){
+                query = "INSERT INTO access (facility_id, employee_id)" +
+                "VALUES (@facilityId, @employeeId);";
+            }
             MySqlCommand myCommand = new MySqlCommand(query, conn);
             MySqlTransaction tr = myCommand.Transaction;
 
