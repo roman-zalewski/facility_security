@@ -18,7 +18,7 @@ except Error as e:
 
 def compute_sql(sql, perm_level):
     conn.ping(reconnect = True)
-    if perm_level == 'scanner' and not sql.strip().upper().startswith("INSERT"):
+    if perm_level == 'keycard' and not sql.strip().upper().startswith("INSERT"):
         return {"answer":"no"}
     cursor = conn.cursor(dictionary = True)      
     try:
@@ -40,7 +40,7 @@ def home():
 def receive_json_1():
     data = request.get_json(force = True)
     sql = data.get("sql")
-    result = compute_sql(sql, 'scanner')
+    result = compute_sql(sql, 'keycard')
     if isinstance(result, dict) and "error" in result:
         return jsonify(result), 400
     return jsonify(result)
