@@ -45,4 +45,23 @@ public class PythonBackendConnector
             Debug.LogError(req.error + " | " + req.downloadHandler.text);
         requestPending = false;
     }
+
+    public static IEnumerator SendGUI(string sqlRequest)
+    {
+        requestPending = true;
+        string json = "{\"sql\":\""+ sqlRequest +"\"}";
+        UnityWebRequest req = new UnityWebRequest("http://127.0.0.1:49170/data/scanner", "POST");
+        req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+        yield return req.SendWebRequest();
+        if (req.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log(req.downloadHandler.text);
+            responseText = req.downloadHandler.text;
+        }
+        else
+            Debug.LogError(req.error + " | " + req.downloadHandler.text);
+        requestPending = false;
+    }
 }

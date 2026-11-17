@@ -14,7 +14,9 @@ public class EmployeesInFacility : MonoBehaviour
     private void Start()
     {
         names = new Stack<GameObject>();
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
+        facilityId = 1;
+        OnRefresh();
     }
 
     public void OnOpen(int facilityId)
@@ -38,7 +40,19 @@ public class EmployeesInFacility : MonoBehaviour
 
     private IEnumerator OnRefreshCoroutine()
     {
-        string query = "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employee";
+        string query = @"SELECT e.employee_id, e.first_name, e.last_name, e.job_title, latest.access_time AS entered_at
+        FROM (
+            SELECT l.employee_id, l.in_or_out, l.access_time,
+            ROW_NUMBER() OVER (PARTITION BY l.employee_id
+            ORDER BY l.access_date DESC, l.access_time DESC, l.entry_id DESC) AS rn
+            FROM access_log l
+            WHERE l.facility_id = " + facilityId + @"
+            AND l.access_status = 'Granted'
+        AND l.in_or_out IS NOT NULL
+        ) latest
+        JOIN employee e ON e.employee_id = latest.employee_id
+        WHERE latest.rn = 1 AND latest.in_or_out = 'In'
+        ORDER BY e.last_name, e.first_name;";
         
         StartCoroutine(PythonBackendConnector.Send(query));
         while (PythonBackendConnector.requestPending)

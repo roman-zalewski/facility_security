@@ -91,7 +91,7 @@ public class AccessRequester : MonoBehaviour
 "SET @facilityId = SELECT facilityId FROM facilities WHERE facility_name = " + facilityDropdown.options[facilityDropdown.value].text +
 "SET @empoyeeId = SELECT emploayeeId FROM employee WHERE first_name = " + nameInput.text;
 
-        PythonBackendConnector.Send(query);
+        PythonBackendConnector.SendGUI(query);
         while (PythonBackendConnector.requestPending)
         {
             yield return new WaitForSeconds(0.5f);
