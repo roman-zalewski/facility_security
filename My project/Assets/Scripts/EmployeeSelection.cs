@@ -34,7 +34,7 @@ public class EmployeeSelection : MonoBehaviour
     {
         string query = "SELECT e.employee_id, e.first_name, e.last_name, e.job_title, e.employment_status " +
         "FROM employee e " +
-        "WHERE EXISTS( " +
+        "WHERE NOT EXISTS( " +
             "SELECT 1 " +
             "FROM access a " +
             "WHERE a.employee_id = e.employee_id " +
@@ -84,14 +84,14 @@ public class EmployeeSelection : MonoBehaviour
     {
         string query = @"SELECT e.employee_id, e.first_name, e.last_name, e.job_title, e.employment_status
 FROM employee e
-WHERE NOT EXISTS(
+WHERE EXISTS(
     SELECT 1
     FROM access a
     WHERE a.employee_id = e.employee_id
-      AND a.facility_id = " + facilityId +
-@")
+      AND a.facility_id = " + facilityId + @"
+)
 ORDER BY e.last_name, e.first_name; ";
-
+        Debug.Log(query);
         StartCoroutine(PythonBackendConnector.Send(query));
         while (PythonBackendConnector.requestPending)
         {
@@ -111,7 +111,7 @@ ORDER BY e.last_name, e.first_name; ";
             Debug.Log(empTemp.full_name + " " + empTemp.first_name);
             nameTemp.nameText.text = empTemp.first_name + " " + empTemp.last_name;
             nameTemp.employeeId = empTemp.employee_id;
-            nameTemp.toggle.isOn = false;
+            nameTemp.toggle.isOn = true;
             employeePrefabs.Push(nameTemp);
         }
     }
