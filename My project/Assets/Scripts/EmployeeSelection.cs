@@ -16,6 +16,7 @@ public class EmployeeSelection : MonoBehaviour
 
     public void OnStartAdd(int facility)
     {
+        Debug.Log("add");
         add = true;
         facilityId = facility;
 
@@ -23,6 +24,8 @@ public class EmployeeSelection : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        employeePrefabs = new Stack<EmployeeSelectionPrefab>();
 
         StartCoroutine( OnStartCoroutine());
     }
@@ -35,7 +38,7 @@ public class EmployeeSelection : MonoBehaviour
             "SELECT 1 " +
             "FROM access a " +
             "WHERE a.employee_id = e.employee_id " +
-              "AND a.facility_id = @facilityId " +
+              "AND a.facility_id = " + facilityId +
         ") " +
         "ORDER BY e.last_name, e.first_name;";
         StartCoroutine(PythonBackendConnector.Send(query));
@@ -71,6 +74,8 @@ public class EmployeeSelection : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+        employeePrefabs = new Stack<EmployeeSelectionPrefab>();
+
         StartCoroutine( OnRemoveCoroutine());
 
     }
@@ -83,8 +88,8 @@ WHERE NOT EXISTS(
     SELECT 1
     FROM access a
     WHERE a.employee_id = e.employee_id
-      AND a.facility_id = @facilityId
-)
+      AND a.facility_id = " + facilityId +
+@")
 ORDER BY e.last_name, e.first_name; ";
 
         StartCoroutine(PythonBackendConnector.Send(query));
@@ -103,7 +108,8 @@ ORDER BY e.last_name, e.first_name; ";
             temp = Instantiate(employeeSelectionPrefab, VLG);
             nameTemp = temp.GetComponent<EmployeeSelectionPrefab>();
             empTemp = employees.Pop();
-            nameTemp.nameText.text = empTemp.full_name;
+            Debug.Log(empTemp.full_name + " " + empTemp.first_name);
+            nameTemp.nameText.text = empTemp.first_name + " " + empTemp.last_name;
             nameTemp.employeeId = empTemp.employee_id;
             nameTemp.toggle.isOn = false;
             employeePrefabs.Push(nameTemp);

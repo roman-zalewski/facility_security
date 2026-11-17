@@ -341,7 +341,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 933040988}
         m_TargetAssemblyTypeName: EmployeesInFacility, Assembly-CSharp
-        m_MethodName: OnUpdateAccess
+        m_MethodName: OnRemoveAccess
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1752,7 +1752,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 933040988}
         m_TargetAssemblyTypeName: EmployeesInFacility, Assembly-CSharp
-        m_MethodName: OnUpdateAccess
+        m_MethodName: OnAddAccess
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4698,7 +4698,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EmployeeSelection
   employeeSelectionPrefab: {fileID: 5104164047375306636, guid: 3454c1e4d235dcd47be66ef133e94764, type: 3}
-  VLG: {fileID: 0}
+  VLG: {fileID: 2019556330}
 --- !u!1 &1511026316
 GameObject:
   m_ObjectHideFlags: 0
