@@ -1,6 +1,7 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient;
+using System.Text.Json;
 
 //adding and deleting employees should look through every toggle to see if it enabled or not, and handle accordingly
 public class EmployeeSelection : MonoBehaviour
@@ -8,7 +9,7 @@ public class EmployeeSelection : MonoBehaviour
     [SerializeField] GameObject employeeSelectionPrefab;
     [SerializeField] Transform VLG;
 
-    private Stack<EmployeeSelectionPrefab> employees;
+    private Stack<EmployeeSelectionPrefab> employeePrefabs;
 
     int facilityId;
     bool add;
@@ -17,99 +18,107 @@ public class EmployeeSelection : MonoBehaviour
     {
         add = true;
         facilityId = facility;
-        //a SQL query that gets every employee that does not have access to that facility
-        try
+
+        foreach (Transform child in VLG.transform)
         {
-            employees = new Stack<EmployeeSelectionPrefab>();
-            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
-                "port = 3307; " +
-                "username = manager; " +
-                "password = P@ssword" +
-                "database =super_secret_labs; ");
-            string query = "[[[INSERT QUEREY HERE]]]";
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
+            Destroy(child.gameObject);
+        }
 
-            GameObject temp;
-            EmployeeSelectionPrefab nameTemp;
+        StartCoroutine( OnStartCoroutine());
+    }
 
-            using var myReader = myCommand.ExecuteReader();
+    private IEnumerator OnStartCoroutine()
+    {
+        string query = "SELECT e.employee_id, e.first_name, e.last_name, e.job_title, e.employment_status " +
+        "FROM employee e " +
+        "WHERE EXISTS( " +
+            "SELECT 1 " +
+            "FROM access a " +
+            "WHERE a.employee_id = e.employee_id " +
+              "AND a.facility_id = @facilityId " +
+        ") " +
+        "ORDER BY e.last_name, e.first_name;";
+        StartCoroutine(PythonBackendConnector.Send(query));
+        while (PythonBackendConnector.requestPending)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+        Debug.Log(PythonBackendConnector.responseText);
+        Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+
+        GameObject temp;
+        Employee empTemp;
+        EmployeeSelectionPrefab nameTemp;
+            while (employees.Count > 0)
             {
-                while (myReader.Read())
-                {
-                    temp = Instantiate(employeeSelectionPrefab, VLG);
-                    nameTemp = temp.GetComponent<EmployeeSelectionPrefab>();
-                    nameTemp.nameText.text = myReader.GetString("full_name");
-                    nameTemp.employeeId = myReader.GetInt32("employee_id");
-                    nameTemp.toggle.isOn = false;
-                    employees.Push(nameTemp);
-                }
+                temp = Instantiate(employeeSelectionPrefab, VLG);
+                nameTemp = temp.GetComponent<EmployeeSelectionPrefab>();
+            empTemp = employees.Pop();
+                nameTemp.nameText.text = empTemp.full_name;
+                nameTemp.employeeId = empTemp.employee_id;
+                nameTemp.toggle.isOn = false;
+                employeePrefabs.Push(nameTemp);
             }
-            conn.Close();
-
-        }
-        catch (MySqlException ex)
-        {
-            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-        }
     }
 
     public void OnStartRemove(int facility)
     {
         add = false;
         facilityId = facility;
-        //a SQL query that gets every employee that has access to that facility
-        try
+
+        foreach (Transform child in VLG.transform)
         {
-            employees = new Stack<EmployeeSelectionPrefab>();
-            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
-                "port = 3307; " +
-                "username = manager; " +
-                "password = P@ssword" +
-                "database =super_secret_labs; ");
-            string query = "[[[INSERT QUEREY HERE]]]";
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
-
-            GameObject temp;
-            EmployeeSelectionPrefab nameTemp;
-
-            using var myReader = myCommand.ExecuteReader();
-            {
-                while (myReader.Read())
-                {
-                    temp = Instantiate(employeeSelectionPrefab, VLG);
-                    nameTemp = temp.GetComponent<EmployeeSelectionPrefab>();
-                    nameTemp.nameText.text = myReader.GetString("full_name");
-                    nameTemp.employeeId = myReader.GetInt32("employee_id");
-                    nameTemp.toggle.isOn = true;
-                    employees.Push(nameTemp);
-                }
-            }
-            conn.Close();
-
+            Destroy(child.gameObject);
         }
-        catch (MySqlException ex)
+
+        StartCoroutine( OnRemoveCoroutine());
+
+    }
+
+    private IEnumerator OnRemoveCoroutine()
+    {
+        string query = @"SELECT e.employee_id, e.first_name, e.last_name, e.job_title, e.employment_status
+FROM employee e
+WHERE NOT EXISTS(
+    SELECT 1
+    FROM access a
+    WHERE a.employee_id = e.employee_id
+      AND a.facility_id = @facilityId
+)
+ORDER BY e.last_name, e.first_name; ";
+
+        StartCoroutine(PythonBackendConnector.Send(query));
+        while (PythonBackendConnector.requestPending)
         {
-            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
+            yield return new WaitForSeconds(0.5f);
+        }
+        Debug.Log(PythonBackendConnector.responseText);
+        Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+
+        GameObject temp;
+        Employee empTemp;
+        EmployeeSelectionPrefab nameTemp;
+        while (employees.Count > 0)
+        {
+            temp = Instantiate(employeeSelectionPrefab, VLG);
+            nameTemp = temp.GetComponent<EmployeeSelectionPrefab>();
+            empTemp = employees.Pop();
+            nameTemp.nameText.text = empTemp.full_name;
+            nameTemp.employeeId = empTemp.employee_id;
+            nameTemp.toggle.isOn = false;
+            employeePrefabs.Push(nameTemp);
         }
     }
 
     public void OnSubmit()
     {
-        //a sql update for bulk adding or removing people
-        try
-        {
-            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
-                "port = 3307; " +
-                "username = manager; " +
-                "password = P@ssword" +
-                "database =super_secret_labs; ");
-            string query = "DELETE FROM access" +
+            string query = "DELETE FROM access " +
             "WHERE facility_id = @facilityId AND employee_id = @employeeId;";
             if(add){
-                query = "INSERT INTO access (facility_id, employee_id)" +
+                query = "INSERT INTO access (facility_id, employee_id) " +
                 "VALUES (@facilityId, @employeeId);";
             }
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
+        /*
             MySqlTransaction tr = myCommand.Transaction;
             EmployeeSelectionPrefab temp;
 
@@ -136,13 +145,7 @@ public class EmployeeSelection : MonoBehaviour
             }
 
             tr.Commit();
-            conn.Close();
-
-        }
-        catch (MySqlException ex)
-        {
-            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-        }
+        */
         gameObject.SetActive(false);
     }
 

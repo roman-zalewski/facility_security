@@ -1,7 +1,8 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient;
+using System.Text.Json;
 
 public class EmployeesInFacility : MonoBehaviour
 {
@@ -26,49 +27,37 @@ public class EmployeesInFacility : MonoBehaviour
     {
         if (names != null)
         {
-            while(names.Count > 0)
+            while (names.Count > 0)
             {
                 Destroy(names.Pop());
             }
         }
         //insert sql Query
-        Stack<string> newNames = new Stack<string>();
+        StartCoroutine(OnRefreshCoroutine());
+    }
 
-        try
+    private IEnumerator OnRefreshCoroutine()
+    {
+        string query = "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employee";
+        
+        StartCoroutine(PythonBackendConnector.Send(query));
+        while (PythonBackendConnector.requestPending)
         {
-            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
-                "port = 3307; " +
-                "username = manager; " +
-                "password = P@ssword" +
-                "database =super_secret_labs; ");
-            string query = "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employee";
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
-
-
-            using var myReader = myCommand.ExecuteReader();
-            {
-                while (myReader.Read())
-                {
-                    newNames.Push(myReader.GetString("full_name"));
-                }
-            }
-            conn.Close();
-
+            yield return new WaitForSeconds(0.5f);
         }
-        catch (MySqlException ex)
-        {
-            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-        }
+        Debug.Log(PythonBackendConnector.responseText);
+        Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+
 
         GameObject temp;
-        while(newNames.Count > 0)
+        while (employees.Count > 0)
         {
             temp = Instantiate(tmproPrefab, textParent);
             names.Push(temp);
-            temp.GetComponent<TextMeshProUGUI>().text = newNames.Pop();
+            temp.GetComponent<TextMeshProUGUI>().text = employees.Pop().full_name;
         }
     }
-    
+
     public void OnBack()
     {
         gameObject.SetActive(false);
