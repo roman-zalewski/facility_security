@@ -14,6 +14,19 @@ public class AccessRequester : MonoBehaviour
         StartCoroutine(FacilityCoroutine());
     }
 
+    private IEnumerator testFacilityCoroutine()
+    {
+        string query = "SELECT * FROM facilities WHERE facility_id = 1";
+        StartCoroutine(PythonBackendConnector.Send(query));
+        while (PythonBackendConnector.requestPending)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+        Debug.Log(PythonBackendConnector.responseText);
+        List<Facility> facility = JsonSerializer.Deserialize<List<Facility>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+        Debug.Log(facility[0].facility_name);
+    }
+
     private IEnumerator FacilityCoroutine()
     {
         string query = "SELECT facility_name FROM facilities";
@@ -23,8 +36,9 @@ public class AccessRequester : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
         Debug.Log(PythonBackendConnector.responseText);
-        Stack<Facility> facilities = JsonSerializer.Deserialize<Stack<Facility>>(PythonBackendConnector.responseText);
+        Stack<Facility> facilities = JsonSerializer.Deserialize<Stack<Facility>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
         List<string> facilityNames = new List<string>();
+        Debug.Log(facilities.Count);
         while (facilities.Count > 0)
         {
             facilityNames.Add(facilities.Pop().facility_name);

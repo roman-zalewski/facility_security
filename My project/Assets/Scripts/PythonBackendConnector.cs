@@ -13,8 +13,12 @@ public class Employee
 
 public class Facility
 {
+    public string facility_city;
     public int facility_id;
+    public int facility_manager;
     public string facility_name;
+    public long facility_phone_number;
+    public string facility_state;
 }
 
 public class PythonBackendConnector
