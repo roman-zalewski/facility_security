@@ -11,11 +11,12 @@ public class AccessRequester : MonoBehaviour
     void Start()
     {
         string query = "SELECT facility_name FROM facilities";
-        PythonBackendConnector.Send(query);
+        StartCoroutine(PythonBackendConnector.Send(query));
         while (PythonBackendConnector.requestPending)
         {
 
         }
+        Debug.Log(PythonBackendConnector.responseText);
         Stack<Facility> facilities = JsonSerializer.Deserialize<Stack<Facility>>(PythonBackendConnector.responseText);
         List<string> facilityNames = new List<string>();
         while(facilities.Count > 0)
