@@ -119,10 +119,10 @@ public class EmployeeSelection : MonoBehaviour
     public void OnSubmit()
     {
             string query = "DELETE FROM access " +
-            "WHERE facility_id = @facilityId AND employee_id = @employeeId;";
+            "WHERE facility_id = %s AND employee_id = %s;";
             if(add){
                 query = "INSERT INTO access (facility_id, employee_id) " +
-                "VALUES (@facilityId, @employeeId);";
+                "VALUES (%s, %s);";
             }
         /*
             MySqlTransaction tr = myCommand.Transaction;
