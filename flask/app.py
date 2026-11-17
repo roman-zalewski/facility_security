@@ -25,6 +25,7 @@ def compute_sql(sql, perm_level):
     try:
         cursor.execute(sql)
     except Error as e:
+        conn.rollback()     
         return {"error": str(e)}
     if cursor.with_rows:
         rows = cursor.fetchall()

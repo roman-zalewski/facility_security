@@ -19,8 +19,7 @@ INSERT INTO employee VALUES
 (4, 'Sarah', 'Johnson', '2020-09-10 08:00:00', 'Active', 5554567890,
 'sjohnson@company.com', 'sarah.j@gmail.com', 'Warehouse Associate', NULL),
 (5, 'Michael', 'Brown', '2017-11-20 08:00:00', 'Terminated', 5555678901,
-'mbrown@company.com', 'mbrown@gmail.com', 'Supply Coordinator', '2023-05-30
-08:00:00'),
+'mbrown@company.com', 'mbrown@gmail.com', 'Supply Coordinator', '2023-05-30 08:00:00'),
 (6, 'Emily', 'Davis', '2021-02-08 08:00:00', 'Active', 5556789012,
 'edavis@company.com', 'emily.d@gmail.com', 'Security Officer', NULL),
 (7, 'Chris', 'Wilson', '2022-07-19 08:00:00', 'Active', 5557890123,
@@ -33,10 +32,8 @@ INSERT INTO facilities VALUES
 (3, 'East Regional Hub', 'NM', 'Albuquerque', 1, 5055553000),
 (4, 'West Storage Facility', 'CA', 'Bakersfield', 2, 6615554000);
 INSERT INTO supplier VALUES
-(1, 'Acme Foods Inc', 'TX', 'Dallas', 2145551111, 'orders@acmefoods.com', '2019-01-
-01 00:00:00', NULL, 'Active'),
-(2, 'Southwest Produce Co', 'AZ', 'Yuma', 9285552222, 'sales@swproduce.com', '2020-
-03-15 00:00:00', NULL, 'Active'),
+(1, 'Acme Foods Inc', 'TX', 'Dallas', 2145551111, 'orders@acmefoods.com', '2019-01-01 00:00:00', NULL, 'Active'),
+(2, 'Southwest Produce Co', 'AZ', 'Yuma', 9285552222, 'sales@swproduce.com', '2020-03-15 00:00:00', NULL, 'Active'),
 (3, 'Pacific Packaging Ltd', 'CA', 'Fresno', 5595553333, 'info@pacificpack.com',
 '2018-06-01 00:00:00', '2023-12-31 00:00:00', 'Inactive'),
 (4, 'National Dairy Supply', 'WI', 'Madison', 6085554444, 'contact@natdairy.com',
@@ -69,14 +66,28 @@ INSERT INTO facility_inventory VALUES
 (3, 6, 4),
 (4, 2, 1),
 (4, 5, 3);
-INSERT INTO access_log VALUES
-(1, 1, 1, 'Granted', '08:02:00', '2025-09-01 00:00:00'),
-(2, 3, 1, 'Granted', '07:58:00', '2025-09-01 00:00:00'),
-(3, 6, 1, 'Granted', '06:45:00', '2025-09-01 00:00:00'),
-(4, 4, 2, 'Denied', '09:15:00', '2025-09-01 00:00:00'),
-(5, 2, 2, 'Granted', '08:30:00', '2025-09-02 00:00:00'),
-(6, 7, 2, 'Granted', '06:00:00', '2025-09-02 00:00:00'),
-(7, 1, 3, 'Granted', '10:00:00', '2025-09-03 00:00:00'),
-(8, 8, 3, 'Granted', '09:45:00', '2025-09-03 00:00:00'),
-(9, 8, 4, 'Granted', '11:20:00', '2025-09-04 00:00:00'),
-(10, 5, 1, 'Denied', '08:00:00', '2025-09-04 00:00:00');
+-- in_or_out rules: Denied attempts are NULL (no movement happened).
+-- Every Granted 'In' is followed by a Granted 'Out' for the same person and
+-- facility, except employees 6 (f1), 2 (f2) and 8 (f4), who are still inside.
+INSERT INTO access_log
+(entry_id, employee_id, facility_id, access_status, access_time, access_date, in_or_out) VALUES
+(1, 1, 1, 'Granted', '08:02:00', '2025-09-01 00:00:00', 'In'),
+(2, 3, 1, 'Granted', '07:58:00', '2025-09-01 00:00:00', 'In'),
+(3, 6, 1, 'Granted', '06:45:00', '2025-09-01 00:00:00', 'In'),
+(4, 4, 2, 'Denied', '09:15:00', '2025-09-01 00:00:00', NULL),
+(5, 2, 2, 'Granted', '08:30:00', '2025-09-02 00:00:00', 'In'),
+(6, 7, 2, 'Granted', '06:00:00', '2025-09-02 00:00:00', 'In'),
+(7, 1, 3, 'Granted', '10:00:00', '2025-09-03 00:00:00', 'In'),
+(8, 8, 3, 'Granted', '09:45:00', '2025-09-03 00:00:00', 'In'),
+(9, 8, 4, 'Granted', '11:20:00', '2025-09-04 00:00:00', 'In'),
+(10, 5, 1, 'Denied', '08:00:00', '2025-09-04 00:00:00', NULL),
+-- exits for the entries above
+(11, 1, 1, 'Granted', '17:05:00', '2025-09-01 00:00:00', 'Out'),
+(12, 3, 1, 'Granted', '16:30:00', '2025-09-01 00:00:00', 'Out'),
+(13, 7, 2, 'Granted', '14:00:00', '2025-09-02 00:00:00', 'Out'),
+(14, 8, 3, 'Granted', '13:10:00', '2025-09-03 00:00:00', 'Out'),
+(15, 1, 3, 'Granted', '15:30:00', '2025-09-03 00:00:00', 'Out'),
+-- a repeat visit (In then Out) and a denied attempt with no access to that facility
+(16, 1, 1, 'Granted', '08:05:00', '2025-09-04 00:00:00', 'In'),
+(17, 1, 1, 'Granted', '17:00:00', '2025-09-04 00:00:00', 'Out'),
+(18, 4, 1, 'Denied', '08:20:00', '2025-09-04 00:00:00', NULL);
