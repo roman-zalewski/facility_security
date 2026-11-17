@@ -1,3 +1,4 @@
+import threading
 from flask import Flask, request, jsonify
 import mysql.connector
 from mysql.connector import Error
@@ -32,6 +33,29 @@ def compute_sql(sql, perm_level):
     conn.commit()
     return {"affected": cursor.rowcount}
 
+db_lock = threading.Lock()   
+
+def compute_batch(statements):
+    with db_lock:
+        conn.ping(reconnect = True)
+        cursor = conn.cursor(dictionary = True)
+        results = []
+        i = 0
+        try:
+            for i, stmt in enumerate(statements):
+                cursor.execute(stmt["sql"], stmt.get("params"))
+                if cursor.with_rows:
+                    results.append(cursor.fetchall())
+                else:
+                    results.append({"affected": cursor.rowcount})
+            conn.commit()
+            return results
+        except (Error, KeyError, TypeError, AttributeError) as e:
+            conn.rollback()
+            return {"error": f"statement {i}: {e}", "rolled_back": True}
+        finally:
+            cursor.close()
+
 @app.route('/')
 def home():
     return "hello"
@@ -50,6 +74,17 @@ def receive_json_2():
     data = request.get_json(force = True)
     sql = data.get("sql")
     result = compute_sql(sql, 'manager')
+    if isinstance(result, dict) and "error" in result:
+        return jsonify(result), 400
+    return jsonify(result)
+
+@app.route('/data/manager/batch', methods = ["POST"])
+def receive_batch():
+    data = request.get_json(force = True)
+    statements = data.get("statements")
+    if not isinstance(statements, list) or not statements:
+        return jsonify({"error": "statements must be a non-empty list"}), 400
+    result = compute_batch(statements)
     if isinstance(result, dict) and "error" in result:
         return jsonify(result), 400
     return jsonify(result)
