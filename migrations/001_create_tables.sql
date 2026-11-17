@@ -54,7 +54,7 @@ foreign key (product_id) references products(product_id),
 foreign key (supplier_id) references supplier(supplier_id)
 );
 CREATE TABLE IF NOT EXISTS access_log(
-entry_id int primary key,
+entry_id int primary key auto_increment,
 employee_id int,
 facility_id int,
 access_status varchar(45),
