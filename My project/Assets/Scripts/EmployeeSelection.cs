@@ -57,7 +57,7 @@ public class EmployeeSelection : MonoBehaviour
                 temp = Instantiate(employeeSelectionPrefab, VLG);
                 nameTemp = temp.GetComponent<EmployeeSelectionPrefab>();
             empTemp = employees.Pop();
-                nameTemp.nameText.text = empTemp.full_name;
+                nameTemp.nameText.text = empTemp.first_name + " " + empTemp.last_name;
                 nameTemp.employeeId = empTemp.employee_id;
                 nameTemp.toggle.isOn = false;
                 employeePrefabs.Push(nameTemp);
