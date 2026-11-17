@@ -82,15 +82,15 @@ public class EmployeeSelection : MonoBehaviour
 
     private IEnumerator OnRemoveCoroutine()
     {
-        string query = @"SELECT e.employee_id, e.first_name, e.last_name, e.job_title, e.employment_status
-FROM employee e
-WHERE EXISTS(
-    SELECT 1
-    FROM access a
-    WHERE a.employee_id = e.employee_id
-      AND a.facility_id = " + facilityId + @"
-)
-ORDER BY e.last_name, e.first_name; ";
+        string query = "SELECT e.employee_id, e.first_name, e.last_name, e.job_title, e.employment_status " +
+        "FROM employee e " +
+        "WHERE EXISTS( " +
+            "SELECT 1 " +
+            "FROM access a " +
+            "WHERE a.employee_id = e.employee_id " +
+              "AND a.facility_id = " + facilityId +
+        ") " +
+        "ORDER BY e.last_name, e.first_name;";
         Debug.Log(query);
         StartCoroutine(PythonBackendConnector.Send(query));
         while (PythonBackendConnector.requestPending)
