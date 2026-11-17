@@ -1,8 +1,7 @@
 using UnityEngine;
-using UnityEngine.UI;
-using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using TMPro;
+using System.Text.Json;
 
 public class AccessRequester : MonoBehaviour
 {
@@ -11,46 +10,25 @@ public class AccessRequester : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //some code to fetch the facilities in the database
-        try{
-            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
-            "port = 3307; " +
-            "username = manager; " +
-            "password = P@ssword" +
-            "database =super_secret_labs; ");
-            string query = "SELECT facility_name FROM facilities";
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
-            Debug.Log("Send Command");
-            List<string> facilityNames = new List<string>();
-            Debug.Log(2.5f);
-            using var myReader = myCommand.ExecuteReader();
-            {
-                while (myReader.Read())
-                {
-                    facilityNames.Add(myReader.GetString("facility_name"));
-                }
-            }
-            Debug.Log(3);
-            conn.Close();
-            Debug.Log(4);
-
-            facilityDropdown.ClearOptions();
-            facilityDropdown.AddOptions(facilityNames);
-        }
-        catch (MySqlException ex)
+        string query = "SELECT facility_name FROM facilities";
+        PythonBackendConnector.Send(query);
+        while (PythonBackendConnector.requestPending)
         {
-            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
+
         }
+        Stack<Facility> facilities = JsonSerializer.Deserialize<Stack<Facility>>(PythonBackendConnector.responseText);
+        List<string> facilityNames = new List<string>();
+        while(facilities.Count > 0)
+        {
+            facilityNames.Add(facilities.Pop().facility_name);
+        }
+
+        facilityDropdown.ClearOptions();
+        facilityDropdown.AddOptions(facilityNames);
     }
 
     public void OnAccess()
     {
-        MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
-        "port = 3307; " +
-        "username = GUI_user; " +
-        "password = password" +
-        "database =super_secret_labs; ");
-        try {
             //I actuall have no clue how this is supposed to work
             string query = "INSERT INTO access_log" +
     "(employee_id, facility_id, access_status, access_time, access_date, in_or_out)" +
@@ -84,21 +62,15 @@ public class AccessRequester : MonoBehaviour
         ")" +
     ") AS granted" +
 ") d; +" +
-"SET @facilityId = SELECT facilityId FROM facilities WHERE facility_name = @facilityName" +
-"SET @empoyeeId = SELECT emploayeeId FROM employee WHERE first_name = @employeeName";
+"SET @facilityId = SELECT facilityId FROM facilities WHERE facility_name = " + facilityDropdown.options[facilityDropdown.value].text +
+"SET @empoyeeId = SELECT emploayeeId FROM employee WHERE first_name = " + nameInput.text;
 
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
-            myCommand.Parameters.AddWithValue("@facilityName", facilityDropdown.options[facilityDropdown.value].text);
-            myCommand.Parameters.AddWithValue("@employeeName", nameInput.text);
+        PythonBackendConnector.Send(query);
+        while (PythonBackendConnector.requestPending)
+        {
 
-            Debug.Log(myCommand.ExecuteNonQuery());
+        }
+        Debug.Log("Send Complete: " + PythonBackendConnector.responseText); //make a tmpro thing that actually makes it clear to the user.
 
-            conn.Close();
-        
-            }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-            }
     }
 }

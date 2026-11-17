@@ -4,23 +4,40 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class PythonBackendConnector : MonoBehaviour
+public class Employee
 {
-    void Start() 
-    { 
-        StartCoroutine(Send()); 
-    }
-    IEnumerator Send()
+    public int employee_id;
+    public string first_name;
+    public string last_name;
+}
+
+public class Facility
+{
+    public int facility_id;
+    public string facility_name;
+}
+
+public class PythonBackendConnector
+{
+
+    public static bool requestPending = false;
+    public static string responseText;
+    public static IEnumerator Send(string sqlRequest)
     {
-        string json = "{\"sql\":\"SELECT employee_id, first_name, last_name FROM employee\"}";
-        var req = new UnityWebRequest("http://127.0.0.1:49170/data/manager", "POST");
+        requestPending = true;
+        string json = "{\"sql\":\""+ sqlRequest +"\"}";
+        UnityWebRequest req = new UnityWebRequest("http://127.0.0.1:49170/data/manager", "POST");
         req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
         yield return req.SendWebRequest();
         if (req.result == UnityWebRequest.Result.Success)
+        {
             Debug.Log(req.downloadHandler.text);
+            responseText = req.downloadHandler.text;
+        }
         else
             Debug.LogError(req.error + " | " + req.downloadHandler.text);
+        requestPending = false;
     }
 }
