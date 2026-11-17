@@ -50,7 +50,7 @@ public class PythonBackendConnector
     {
         requestPending = true;
         string json = "{\"sql\":\""+ sqlRequest +"\"}";
-        UnityWebRequest req = new UnityWebRequest("http://127.0.0.1:49170/data/scanner", "POST");
+        UnityWebRequest req = new UnityWebRequest("http://127.0.0.1:49170/data/keycard", "POST");
         req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");

@@ -77,21 +77,20 @@ public class AccessRequester : MonoBehaviour
         "FROM( " +
             "SELECT in_or_out " +
             "FROM access_log " +
-            "WHERE employee_id = @employeeId " +
-              "AND facility_id = @facilityId " +
+            "WHERE employee_id = 1 " +
+              "AND facility_id = 1 " +
               "AND access_status = 'Granted' " +
-              "AND in_or_out IS NOT NULL" +
+              "AND in_or_out IS NOT NULL " +
             "ORDER BY access_date DESC, access_time DESC, entry_id DESC " +
             "LIMIT 1 " +
         ") last_event " +
         "WHERE last_event.in_or_out = 'In' " +
     ") " +
 ") AS granted " +
-") d; + " +
-"SET @facilityId = SELECT facilityId FROM facilities WHERE facility_name = " + facilityDropdown.options[facilityDropdown.value].text +
-"SET @empoyeeId = SELECT emploayeeId FROM employee WHERE first_name = " + nameInput.text;
+") d; ";
 
-        PythonBackendConnector.SendGUI(query);
+        Debug.Log(query);
+        StartCoroutine(PythonBackendConnector.SendGUI(query));
         while (PythonBackendConnector.requestPending)
         {
             yield return new WaitForSeconds(0.5f);

@@ -4037,7 +4037,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6df59db8984046b4f91a1049460fa247, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Employees
-  employeeNamePrefab: {fileID: 5104164047375306636, guid: 3454c1e4d235dcd47be66ef133e94764, type: 3}
+  employeeNamePrefab: {fileID: 1387390730761662739, guid: fd36cea3f89737f4b941ffd9ce48a12a, type: 3}
   VLG: {fileID: 770019983}
 --- !u!1 &1194797601
 GameObject:
