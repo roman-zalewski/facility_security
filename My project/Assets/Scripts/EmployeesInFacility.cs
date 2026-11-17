@@ -46,8 +46,8 @@ public class EmployeesInFacility : MonoBehaviour
             ROW_NUMBER() OVER (PARTITION BY l.employee_id
             ORDER BY l.access_date DESC, l.access_time DESC, l.entry_id DESC) AS rn
             FROM access_log l
-            WHERE l.facility_id = " + facilityId + @"
-            AND l.access_status = 'Granted'
+            WHERE l.facility_id = " + facilityId +
+            @" AND l.access_status = 'Granted'
         AND l.in_or_out IS NOT NULL
         ) latest
         JOIN employee e ON e.employee_id = latest.employee_id
