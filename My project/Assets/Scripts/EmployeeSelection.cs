@@ -49,7 +49,6 @@ public class EmployeeSelection : MonoBehaviour
         }
         Debug.Log(PythonBackendConnector.responseText);
         Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
-        employeeStack = new Stack<Employee>(new Stack<Employee>(employees));
 
         GameObject temp;
         Employee empTemp;
@@ -101,7 +100,6 @@ public class EmployeeSelection : MonoBehaviour
         }
         Debug.Log(PythonBackendConnector.responseText);
         Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
-        employeeStack = new Stack<Employee>(new Stack<Employee>(employees));
 
         GameObject temp;
         Employee empTemp;
@@ -114,7 +112,7 @@ public class EmployeeSelection : MonoBehaviour
             Debug.Log(empTemp.full_name + " " + empTemp.first_name);
             nameTemp.nameText.text = empTemp.first_name + " " + empTemp.last_name;
             nameTemp.employeeId = empTemp.employee_id;
-            nameTemp.toggle.isOn = true;
+            nameTemp.toggle.isOn = false;
             employeePrefabs.Push(nameTemp);
         }
     }
@@ -134,7 +132,19 @@ public class EmployeeSelection : MonoBehaviour
             query = "INSERT INTO access (facility_id, employee_id) " +
             "VALUES (%s, %s);";
         }
-        StartCoroutine(PythonBackendConnector.SendBatch(employeeStack, facilityId, query));
+        employeeStack = new Stack<Employee>();
+        EmployeeSelectionPrefab empTemp;
+        while (employeePrefabs.Count > 0) {
+            empTemp = employeePrefabs.Pop();
+            if (empTemp.toggle.isOn)
+            {
+                employeeStack.Push(new Employee());
+                employeeStack.Peek().employee_id = empTemp.employeeId;
+            }
+        }
+            StartCoroutine(PythonBackendConnector.SendBatch(employeeStack, facilityId, query));
+
+        
         while (PythonBackendConnector.requestPending)
         {
             yield return new WaitForSeconds(0.5f);
