@@ -77,7 +77,7 @@ public class PythonBackendConnector
             queries.Add(new { sql = query, @params = new object[] { facilityId, employee.employee_id } });
         }
 
-        string json = JsonSerializer.Serialize(new { queries });
+        string json = JsonSerializer.Serialize(new { statements = queries });
         UnityWebRequest req = new UnityWebRequest("http://127.0.0.1:49170/data/manager/batch", "POST");
         req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
         req.downloadHandler = new DownloadHandlerBuffer();

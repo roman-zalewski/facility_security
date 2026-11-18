@@ -63,11 +63,13 @@ public class EmployeesInFacility : MonoBehaviour
 
 
         GameObject temp;
+        Employee tempEmp;
         while (employees.Count > 0)
         {
             temp = Instantiate(tmproPrefab, textParent);
             names.Push(temp);
-            temp.GetComponent<TextMeshProUGUI>().text = employees.Pop().full_name;
+            tempEmp = employees.Pop();
+            temp.GetComponent<TextMeshProUGUI>().text = tempEmp.first_name + " " + tempEmp.last_name;
         }
     }
 
