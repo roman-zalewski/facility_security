@@ -81,12 +81,12 @@ public class AccessRequester : MonoBehaviour
 
         query = "INSERT INTO access_log " +
 "(employee_id, facility_id, access_status, access_time, access_date, in_or_out) " +
-"SELECT @employeeId, @facilityId, " +
+"SELECT " + empID+ ", "+ facID + ", " +
    "IF(d.granted, 'Granted', 'Denied'), " +
    "CURTIME(), CURDATE(), " +
-   "IF(d.granted, @direction, NULL) " +
+   "IF(d.granted, 'In', NULL) " +
 "FROM( " +
-"SELECT IF(@direction = 'In', " +
+"SELECT IF('In' = 'In', " +
     "EXISTS( " +
         "SELECT 1 " +
         "FROM access a " +
