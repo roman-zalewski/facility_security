@@ -8,6 +8,7 @@ public class AccessRequester : MonoBehaviour
 {
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private TMP_Dropdown facilityDropdown;
+    [SerializeField] private TextMeshProUGUI resultText;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -56,7 +57,29 @@ public class AccessRequester : MonoBehaviour
 
     private IEnumerator AccessCoroutine()
     {
-        string query = "INSERT INTO access_log " +
+        int empID;
+        int facID;
+        string query = "SELECT * FROM employee WHERE first_name = '" + nameInput.text + "';";
+        StartCoroutine(PythonBackendConnector.Send(query));
+        resultText.text = "Request Sent";
+        while (PythonBackendConnector.requestPending)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        empID = JsonSerializer.Deserialize<List<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true })[0].employee_id;
+
+        string query = "SELECT * FROM facilities WHERE facility_name = '" + facilityDropdown.Options[facilityDropdown.Selection].text + "';";
+        StartCoroutine(PythonBackendConnector.Send(query));
+        resultText.text = "Request Sent";
+        while (PythonBackendConnector.requestPending)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        empID = JsonSerializer.Deserialize<List<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true })[0].employee_id;
+
+        query = "INSERT INTO access_log " +
 "(employee_id, facility_id, access_status, access_time, access_date, in_or_out) " +
 "SELECT @employeeId, @facilityId, " +
    "IF(d.granted, 'Granted', 'Denied'), " +
@@ -95,6 +118,17 @@ public class AccessRequester : MonoBehaviour
         {
             yield return new WaitForSeconds(0.5f);
         }
-        Debug.Log("Send Complete: " + PythonBackendConnector.responseText); //make a tmpro thing that actually makes it clear to the user.
+
+        query = "SELECT entry_id, access_status, in_or_out, access_date, access_time " +
+        "FROM access_log " +
+        "ORDER BY access_date DESC, access_time DESC, entry_id DESC " +
+        "LIMIT 1;";
+        StartCoroutine(PythonBackendConnector.Send(query));
+        resultText.text = "Request Sent";
+        while (PythonBackendConnector.requestPending)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+        resultText.text = JsonSerializer.Deserialize<List<AccessLog>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true })[0].access_status;
     }
 }
