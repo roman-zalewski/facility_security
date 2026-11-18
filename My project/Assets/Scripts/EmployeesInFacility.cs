@@ -51,7 +51,7 @@ public class EmployeesInFacility : MonoBehaviour
         "WHERE latest.rn = 1 AND latest.in_or_out = 'In' " +
         "ORDER BY e.last_name, e.first_name;";
 
-        Debug.Log(query);
+        Debug.Log("EmployeesInFacility Query: " + query);
         
         StartCoroutine(PythonBackendConnector.Send(query));
         while (PythonBackendConnector.requestPending)

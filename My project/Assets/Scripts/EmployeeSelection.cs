@@ -124,6 +124,7 @@ public class EmployeeSelection : MonoBehaviour
                 query = "INSERT INTO access (facility_id, employee_id) " +
                 "VALUES (%s, %s);";
             }
+            StartCoroutine(PythonBackendConnector.SendBatch());
         /*
             MySqlTransaction tr = myCommand.Transaction;
             EmployeeSelectionPrefab temp;
