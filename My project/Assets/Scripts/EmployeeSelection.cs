@@ -10,6 +10,7 @@ public class EmployeeSelection : MonoBehaviour
     [SerializeField] Transform VLG;
 
     private Stack<EmployeeSelectionPrefab> employeePrefabs;
+    private Stack<Employee> employeeStack;
 
     int facilityId;
     bool add;
@@ -48,6 +49,7 @@ public class EmployeeSelection : MonoBehaviour
         }
         Debug.Log(PythonBackendConnector.responseText);
         Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+        employeeStack = new Stack<Employee>(new Stack<Employee>(employees));
 
         GameObject temp;
         Employee empTemp;
@@ -99,6 +101,7 @@ public class EmployeeSelection : MonoBehaviour
         }
         Debug.Log(PythonBackendConnector.responseText);
         Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+        employeeStack = new Stack<Employee>(new Stack<Employee>(employees));
 
         GameObject temp;
         Employee empTemp;
@@ -118,42 +121,24 @@ public class EmployeeSelection : MonoBehaviour
 
     public void OnSubmit()
     {
-            string query = "DELETE FROM access " +
-            "WHERE facility_id = %s AND employee_id = %s;";
-            if(add){
-                query = "INSERT INTO access (facility_id, employee_id) " +
-                "VALUES (%s, %s);";
-            }
-            StartCoroutine(PythonBackendConnector.SendBatch());
-        /*
-            MySqlTransaction tr = myCommand.Transaction;
-            EmployeeSelectionPrefab temp;
-
-            try 
-            {
-                while (employees.Count > 0)
-                {
-                    temp = employees.Pop(); 
-                    if ((temp.toggle.isOn && !add) || (!temp.toggle.isOn && add))
-                    {
-                        continue;
-                    }
-                    myCommand.Parameters.Clear();
-                    myCommand.Parameters.AddWithValue("@facilityID", facilityId);
-                    myCommand.Parameters.AddWithValue("@employeeId", temp.employeeId);
-                    //loop through command
-                    myCommand.ExecuteNonQuery();
-                }
-            }
-            catch(MySqlException ex)
-            {
-                Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-                tr.Rollback();
-            }
-
-            tr.Commit();
-        */
+        StartCoroutine(SubmitCoroutine());
         gameObject.SetActive(false);
+    }
+
+    private IEnumerator SubmitCoroutine()
+    {
+        string query = "DELETE FROM access " +
+        "WHERE facility_id = %s AND employee_id = %s;";
+        if (add)
+        {
+            query = "INSERT INTO access (facility_id, employee_id) " +
+            "VALUES (%s, %s);";
+        }
+        StartCoroutine(PythonBackendConnector.SendBatch(employeeStack, facilityId, query));
+        while (PythonBackendConnector.requestPending)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 
     public void OnCancel()
