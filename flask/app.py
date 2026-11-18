@@ -1,9 +1,20 @@
+import datetime
 import threading
 from flask import Flask, request, jsonify
 import mysql.connector
 from mysql.connector import Error
 
 app = Flask(__name__)
+
+# MySQL TIME columns (like access_time) come back as timedelta, which jsonify can't
+# serialize. Return them as "HH:MM:SS" text instead of failing with a 500.
+_old_default = app.json.default
+def _default(o):
+    if isinstance(o, datetime.timedelta):
+        s = int(o.total_seconds())
+        return f"{s // 3600:02d}:{s % 3600 // 60:02d}:{s % 60:02d}"
+    return _old_default(o)
+app.json.default = _default
 
 try:
     conn = mysql.connector.connect(
