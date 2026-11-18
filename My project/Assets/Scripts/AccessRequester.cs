@@ -69,7 +69,7 @@ public class AccessRequester : MonoBehaviour
 
         empID = JsonSerializer.Deserialize<List<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true })[0].employee_id;
 
-        string query = "SELECT * FROM facilities WHERE facility_name = '" + facilityDropdown.Options[facilityDropdown.Selection].text + "';";
+        query = "SELECT * FROM facilities WHERE facility_name = '" + facilityDropdown.options[facilityDropdown.value].text + "';";
         StartCoroutine(PythonBackendConnector.Send(query));
         resultText.text = "Request Sent";
         while (PythonBackendConnector.requestPending)
@@ -77,7 +77,7 @@ public class AccessRequester : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        empID = JsonSerializer.Deserialize<List<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true })[0].employee_id;
+        facID = JsonSerializer.Deserialize<List<Facility>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true })[0].facility_id;
 
         query = "INSERT INTO access_log " +
 "(employee_id, facility_id, access_status, access_time, access_date, in_or_out) " +
@@ -91,8 +91,8 @@ public class AccessRequester : MonoBehaviour
         "SELECT 1 " +
         "FROM access a " +
         "JOIN employee e ON e.employee_id = a.employee_id " +
-        "WHERE a.employee_id = @employeeId " +
-          "AND a.facility_id = @facilityId " +
+        "WHERE a.employee_id = " + empID + " " +
+          "AND a.facility_id = " + facID + " " +
           "AND e.employment_status = 'Active' " +
     "), " +
     "EXISTS( " +
@@ -100,8 +100,8 @@ public class AccessRequester : MonoBehaviour
         "FROM( " +
             "SELECT in_or_out " +
             "FROM access_log " +
-            "WHERE employee_id = 1 " +
-              "AND facility_id = 1 " +
+            "WHERE employee_id = " + empID + " " +
+              "AND facility_id = " + facID + " " +
               "AND access_status = 'Granted' " +
               "AND in_or_out IS NOT NULL " +
             "ORDER BY access_date DESC, access_time DESC, entry_id DESC " +
