@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
-using MySql.Data.MySqlClient;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text.Json;
 
 public class NameChanger : MonoBehaviour
 {
@@ -14,30 +16,22 @@ public class NameChanger : MonoBehaviour
 
     public void OnConfirm()
     {
-        DBConnection dbConn = DBConnection.Instance();
-        if (dbConn.IsConnect())
+        StartCoroutine( ConfirmCoroutine());
+
+    }
+
+    private IEnumerator ConfirmCoroutine()
+    {
+        string query = "UPDATE employee " +
+"SET first_name = '" + firstName.text + "', last_name = '" + lastName.text + "' " +
+"WHERE employee_id = " + employeeID.ToString() + ";";
+        Debug.Log("NameChanger Query: " + query);
+        StartCoroutine(PythonBackendConnector.Send(query));
+        while (PythonBackendConnector.requestPending)
         {
-            try
-            {
-                //I actuall have no clue how this is supposed to work
-                string query = "UPDATE employee" +
-"SET first_name = @firstName, last_name = @lastName" +
-"WHERE employee_id = @employeeId";
-
-                MySqlCommand myCommand = new MySqlCommand();
-                myCommand.Connection = dbConn.Connection;
-                myCommand.CommandText = query;
-                myCommand.Parameters.AddWithValue("@firstName", lastName.text);
-                myCommand.Parameters.AddWithValue("@lastName", firstName.text);
-
-                Debug.Log(myCommand.ExecuteNonQuery());
-
-            }
-            catch (MySqlException ex)
-            {
-                Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-            }
+            yield return new WaitForSeconds(0.5f);
         }
+
         gameObject.SetActive(false);
     }
 

@@ -1,37 +1,30 @@
 using UnityEngine;
 using TMPro;
-using MySql.Data.MySqlClient;
+using System.Collections.Generic;
+using System.Collections;
+using System.Text.Json;
 
 public class ChangeNamePrefab : MonoBehaviour
 {
     public TextMeshProUGUI empName;
-    
+
     public void OnChageName()
     {
-        int empId = 0;
+        StartCoroutine(OnChangeNameCoroutine());
+    }
+
+    private IEnumerator OnChangeNameCoroutine()
+    {
         FindAnyObjectByType<NameChanger>(FindObjectsInactive.Include).gameObject.SetActive(true);
-        DBConnection dbConn = DBConnection.Instance();
-        if (dbConn.IsConnect())
+        string query = "SELECT employee_id FROM employee WHERE first_name = '" + empName.text.Split(" ")[0] + "';";
+        Debug.Log("ChangeNamePrefab Query: " + query);
+        StartCoroutine(PythonBackendConnector.Send(query));
+        while (PythonBackendConnector.requestPending)
         {
-            string query = "SELECT employee_id FROM employee WHERE first_name = @firstName";
-            MySqlCommand myCommand = new MySqlCommand(query, dbConn.Connection);
-            myCommand.Parameters.AddWithValue("@firstName", empName.text.Split(" ")[0]);
-
-
-            using var myReader = myCommand.ExecuteReader();
-            {
-                while (myReader.Read())
-                {
-                    empId = myReader.GetInt32("employee_id");
-                }
-            }
-
-            dbConn.Close();
+            yield return new WaitForSeconds(0.5f);
         }
-        else
-        {
-            Debug.LogError("NO CONNECTION!");
-        }
-        FindAnyObjectByType<NameChanger>().OnStart(empId);
+        Debug.Log(PythonBackendConnector.responseText);
+        Stack<Employee> employee = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+        FindAnyObjectByType<NameChanger>().OnStart(employee.Pop().employee_id);
     }
 }

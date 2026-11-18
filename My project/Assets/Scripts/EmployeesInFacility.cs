@@ -1,7 +1,8 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient;
+using System.Text.Json;
 
 public class EmployeesInFacility : MonoBehaviour
 {
@@ -13,7 +14,6 @@ public class EmployeesInFacility : MonoBehaviour
     private void Start()
     {
         names = new Stack<GameObject>();
-        gameObject.SetActive(false);
     }
 
     public void OnOpen(int facilityId)
@@ -26,49 +26,53 @@ public class EmployeesInFacility : MonoBehaviour
     {
         if (names != null)
         {
-            while(names.Count > 0)
+            while (names.Count > 0)
             {
                 Destroy(names.Pop());
             }
         }
         //insert sql Query
-        Stack<string> newNames = new Stack<string>();
+        StartCoroutine(OnRefreshCoroutine());
+    }
 
-        try
+    private IEnumerator OnRefreshCoroutine()
+    {
+        string query = "SELECT e.employee_id, e.first_name, e.last_name, e.job_title, latest.access_time AS entered_at " +
+        "FROM ( " +
+            "SELECT l.employee_id, l.in_or_out, l.access_time, " +
+            "ROW_NUMBER() OVER (PARTITION BY l.employee_id " +
+            "ORDER BY l.access_date DESC, l.access_time DESC, l.entry_id DESC) AS rn " +
+            "FROM access_log l " +
+            "WHERE l.facility_id = " + facilityId + " " +
+            "AND l.access_status = 'Granted' " +
+        "AND l.in_or_out IS NOT NULL " +
+        ") latest " +
+        "JOIN employee e ON e.employee_id = latest.employee_id " +
+        "WHERE latest.rn = 1 AND latest.in_or_out = 'In' " +
+        "ORDER BY e.last_name, e.first_name;";
+
+        Debug.Log("EmployeesInFacility Query: " + query);
+        
+        StartCoroutine(PythonBackendConnector.Send(query));
+        while (PythonBackendConnector.requestPending)
         {
-            MySqlConnection conn = new MySqlConnection("Server = 127.0.0.1; " +
-                "port = 3307; " +
-                "username = manager; " +
-                "password = P@ssword" +
-                "database =super_secret_labs; ");
-            string query = "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employee";
-            MySqlCommand myCommand = new MySqlCommand(query, conn);
-
-
-            using var myReader = myCommand.ExecuteReader();
-            {
-                while (myReader.Read())
-                {
-                    newNames.Push(myReader.GetString("full_name"));
-                }
-            }
-            conn.Close();
-
+            yield return new WaitForSeconds(0.5f);
         }
-        catch (MySqlException ex)
-        {
-            Debug.LogError("Error " + ex.Number + " has occurred: " + ex.Message);
-        }
+        Debug.Log(PythonBackendConnector.responseText);
+        Stack<Employee> employees = JsonSerializer.Deserialize<Stack<Employee>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
+
 
         GameObject temp;
-        while(newNames.Count > 0)
+        Employee tempEmp;
+        while (employees.Count > 0)
         {
             temp = Instantiate(tmproPrefab, textParent);
             names.Push(temp);
-            temp.GetComponent<TextMeshProUGUI>().text = newNames.Pop();
+            tempEmp = employees.Pop();
+            temp.GetComponent<TextMeshProUGUI>().text = tempEmp.first_name + " " + tempEmp.last_name;
         }
     }
-    
+
     public void OnBack()
     {
         gameObject.SetActive(false);

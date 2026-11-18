@@ -324,7 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1edc34292958c3b409a7bc8332035fe3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChangeNamePrefab
-  empText: {fileID: 8627514161387125089}
+  empName: {fileID: 8627514161387125089}
 --- !u!1 &5955713944243799447
 GameObject:
   m_ObjectHideFlags: 0
