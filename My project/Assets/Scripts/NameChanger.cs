@@ -22,9 +22,10 @@ public class NameChanger : MonoBehaviour
 
     private IEnumerator ConfirmCoroutine()
     {
-        string query = "UPDATE employee" +
-"SET first_name = " + firstName.text + ", last_name = " + lastName.text + " " +
-"WHERE employee_id = " + employeeID.ToString(); 
+        string query = "UPDATE employee " +
+"SET first_name = '" + firstName.text + "', last_name = '" + lastName.text + "' " +
+"WHERE employee_id = " + employeeID.ToString() + ";";
+        Debug.Log("NameChanger Query: " + query);
         StartCoroutine(PythonBackendConnector.Send(query));
         while (PythonBackendConnector.requestPending)
         {

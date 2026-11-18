@@ -16,7 +16,8 @@ public class ChangeNamePrefab : MonoBehaviour
     private IEnumerator OnChangeNameCoroutine()
     {
         FindAnyObjectByType<NameChanger>(FindObjectsInactive.Include).gameObject.SetActive(true);
-        string query = "SELECT employee_id FROM employee WHERE first_name = " + empName.text.Split(" ")[0]; 
+        string query = "SELECT employee_id FROM employee WHERE first_name = '" + empName.text.Split(" ")[0] + "';";
+        Debug.Log("ChangeNamePrefab Query: " + query);
         StartCoroutine(PythonBackendConnector.Send(query));
         while (PythonBackendConnector.requestPending)
         {

@@ -22,6 +22,7 @@ public class Facility
     public string facility_name;
     public long facility_phone_number;
     public string facility_state;
+    public int people_inside;
 }
 
 public class PythonBackendConnector

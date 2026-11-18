@@ -42,7 +42,7 @@ public class FacilitySelector : MonoBehaviour
         Debug.Log(PythonBackendConnector.responseText);
         Stack<Facility> facilities = JsonSerializer.Deserialize<Stack<Facility>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
 
-        Stack<Facility> facilityIdsForQueries = facilities;
+        Stack<Facility> facilityIdsForQueries = new Stack<Facility>(facilities);
 
         //this only does specific facilities, it needs to be all facilities
         
@@ -67,18 +67,20 @@ public class FacilitySelector : MonoBehaviour
             Debug.Log(PythonBackendConnector.responseText);
             Stack<Facility> facility = JsonSerializer.Deserialize<Stack<Facility>>(PythonBackendConnector.responseText, new JsonSerializerOptions { IncludeFields = true });
             
-                facilityCount.Push(facility.Pop().facility_id);
+                facilityCount.Push(facility.Pop().people_inside);
         }
 
-
+        Debug.Log("Check 1");
         GameObject temp;
-
-        for (int i = 0; i < facilityNames.Count; i++)
+        int totalFacilities = facilities.Count;
+        for (int i = 0; i < totalFacilities; i++)
         {
+            Debug.Log("Check 2");
             temp = Instantiate(FacilityPrefab, FacilityVLG);
             facilityObjects.Push(temp);
-            temp.GetComponentInChildren<FacilityGameobjects>().FacilityText.text = facilityNames.Pop();
-            temp.GetComponentInChildren<FacilityGameobjects>().facilityID = facilityIDs.Pop();
+            Facility tempFacility = facilities.Pop();
+            temp.GetComponentInChildren<FacilityGameobjects>().FacilityText.text = tempFacility.facility_name;
+            temp.GetComponentInChildren<FacilityGameobjects>().facilityID = tempFacility.facility_id;
             temp.GetComponentInChildren<FacilityGameobjects>().UserCountText.text = facilityCount.Pop().ToString();
         }
     }

@@ -40,4 +40,13 @@ public class Employees : MonoBehaviour
             nameTemp.empName.text = employees.Pop().full_name;
         }
     }
+
+    public void OnRefresh()
+    {
+        foreach(Transform child in VLG.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        StartCoroutine(SpawnEmployeesCoroutine());
+    }
 }
