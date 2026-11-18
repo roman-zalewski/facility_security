@@ -37,7 +37,6 @@ Tables: `employee`, `facilities`, `access`, `access_log`, plus `supplier`, `prod
 
 - `access` holds one row per employee and facility they may enter.
 - `access_log` holds every attempt: employee, facility, `Granted` or `Denied`, the time and date, and `in_or_out` (`In` or `Out`).
-- `access_log.entry_id` is auto-incremented, so new log rows get ids automatically.
 
 ### Access rules
 
@@ -63,22 +62,13 @@ Tables: `employee`, `facilities`, `access`, `access_log`, plus `supplier`, `prod
    3. `migrations/004_create_roles.sql` creates the users.
    4. `migrations/003_initial_test_functionality.sql` is an optional set of check queries.
 
-**Upgrading an existing database.** `001` skips tables that already exist. If your `access_log` table was created before it had the `in_or_out` column or auto-increment ids, run:
-
-```sql
-ALTER TABLE access_log ADD COLUMN in_or_out VARCHAR(45);
-ALTER TABLE access_log MODIFY entry_id INT NOT NULL AUTO_INCREMENT;
-```
-
 ### 2. Flask API
 
 Install the dependencies (`flask` and `mysql-connector-python`) and start the server from the `flask/` folder:
 
 ```
-python app.py
+python3 app.py
 ```
-
-It listens on `127.0.0.1:49170`. The database connection settings (host, database name and login) are at the top of `app.py`. Restart it after changing `app.py`.
 
 ### 3. Unity
 
@@ -121,10 +111,12 @@ Example batch request, adding two employees to facility 3:
  - Presentation
  - Migrations
  - Access
+ - Backened
 
 ### Jonah
 
  - Functional SQL Queries
+ - On call SQL Engineer
 
 ### Collin
 
