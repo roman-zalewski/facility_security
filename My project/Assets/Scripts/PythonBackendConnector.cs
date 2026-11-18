@@ -25,6 +25,13 @@ public class Facility
     public int people_inside;
 }
 
+public class AccessLog
+{
+    public int entry_id;
+    public string access_status;
+    public string in_or_out;
+}
+
 public class PythonBackendConnector
 {
 
