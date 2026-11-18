@@ -6,8 +6,6 @@ from mysql.connector import Error
 
 app = Flask(__name__)
 
-# MySQL TIME columns (like access_time) come back as timedelta, which jsonify can't
-# serialize. Return them as "HH:MM:SS" text instead of failing with a 500.
 _old_default = app.json.default
 def _default(o):
     if isinstance(o, datetime.timedelta):
